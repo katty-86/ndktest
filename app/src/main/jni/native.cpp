@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>   // std::greater
 #include <algorithm>
+#include <android/log.h>
 
 
 JNIEXPORT jstring JNICALL Java_com_example_kaky_ndktest_MainActivity_getStringFromNative
@@ -79,5 +80,51 @@ JNIEXPORT jintArray JNICALL Java_com_example_kaky_ndktest_MainActivity_stlsort
 JNIEXPORT jobjectArray JNICALL Java_com_example_kaky_ndktest_MainActivity_matrixMultiplication
         (JNIEnv *env, jobject o, jobjectArray A, jobjectArray B){
 
+    int size=env->GetArrayLength(A);
+    jclass claz = env->FindClass( "[I");
+    jobjectArray result = env->NewObjectArray( size, claz, NULL);
+    int **Bptr =new int*[size];
+    for(int i=0; i<size; ++i){
+        jintArray BoneDim= (jintArray)env->GetObjectArrayElement(B, i);
+        jint *Belement=env->GetIntArrayElements(BoneDim, 0);
+        Bptr[i]=new int [size];
+        for(int j=0; j<size; j++){
+            Bptr[i][j]=Belement[j];
+        }
+        delete Belement;
+    }
 
+    for(int i=0; i<size; ++i){
+        jintArray AoneDim= (jintArray)env->GetObjectArrayElement(A, i);
+        jint *Aelement=env->GetIntArrayElements(AoneDim, 0);
+        jintArray inner = env->NewIntArray( size);
+        int localArray[size];// = new int[size];
+        for(int j=0; j<size; ++j) {
+            localArray[j]=0;
+            for(int k=0; k<size; ++k){
+
+                int sum=0;
+                sum= Aelement[k] * (Bptr[k][j]);
+              //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "multiply A %d B %d result %d", Aelement[k], Bptr[k][j], sum);
+                localArray[j]=localArray[j] + sum;
+              //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "The value of n is %d", localArray[j]);
+            }
+          //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "End %d", localArray[j]);
+
+
+        }
+
+        env->SetIntArrayRegion( inner, 0, size, localArray);
+        env->SetObjectArrayElement( result, i, inner);
+        env->DeleteLocalRef( inner);
+       // delete [] localArray;
+        delete Aelement;
+      //  delete Belement;
+
+    }
+    for (int i = 0; i < size; ++i)
+        delete [] Bptr[i];
+    delete [] Bptr;
+
+    return result;
 }

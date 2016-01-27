@@ -19,8 +19,11 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    int c_number = 1500;
-    int m_number=20;
+
+    int c_number = 10;
+    int m_number=100;
+    int gen_number=10;
+    long start, end, diff;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -43,85 +46,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        int[] testarray = new int[c_number];
-
-        for (int i = 0; i < c_number; i++) {
-            Random randomGenerator = new Random();
-            testarray[i] = randomGenerator.nextInt(c_number);
-        }
-        int[] ctestarray = new int[c_number];
-        int[] stltestarray = new int[c_number];
-        System.arraycopy(testarray,0,ctestarray,0,testarray.length);
-        System.arraycopy(testarray,0,stltestarray,0,testarray.length);
-        String s_result="";
-      //  s_result+="org tab:"+ createString(testarray)+"\n";
-        //Timestamp czas = ;
-        long jStart= System.nanoTime();
-        int[] jresultArr = jbubbleSort(testarray);
-        long jEnd= System.nanoTime();
-        long jDiff=jEnd-jStart;
-        s_result+="Bubble sort(java): "+jDiff+" ns\n";
-       // s_result+="org tab:"+ createString(ctestarray)+"\n";
 
 
-        long cStart = System.nanoTime();
-        int[] cresultArr = bubbleSort(ctestarray);
-        long cEnd= System.nanoTime();
-        long cDiff=cEnd-cStart;
-        s_result+="Bubble sort(c++): "+cDiff+" ns\n";
-        if(compareTab(jresultArr,cresultArr )){
-            s_result+="j+c ok\n ";
-        }
 
-        long stlStart = System.nanoTime();
-        int[] stlresultArr = stlsort(stltestarray);
-        long stlEnd= System.nanoTime();
-        long stlDiff=stlEnd-stlStart;
-        s_result+="stl sort(c++): "+stlDiff+" ns\n";
-       // s_result+="org tab:"+ createString(testarray)+"\n";
-        if(compareTab(jresultArr,stlresultArr )){
-            s_result+="j+stl ok\n ";
-        }
-        if(compareTab(cresultArr,stlresultArr )){
-            s_result+="c+stl ok\n ";
-        }
-
-       /* String js_bubleSort=createString(jresultArr);
-        String jc_bubleSort=createString(cresultArr);
-        String stl_bubleSort=createString(stlresultArr);
-        s_result+=" " + js_bubleSort+"\n"+jc_bubleSort+"\n"+stl_bubleSort+"\n"; */
-
-        //matrix test
-        int [][] Amatrix = new int[m_number][m_number];
-        int [][] Bmatrix = new int[m_number][m_number];
-        int [][] cAmatrix = new int[m_number][m_number];
-        int [][] cBmatrix = new int[m_number][m_number];
-        for (int i = 0; i < m_number; i++) {
-            for (int j = 0; j < m_number; j++) {
-                Random randomGenerator = new Random();
-                Amatrix[i][j] = randomGenerator.nextInt(m_number);
-                Bmatrix[i][j] = randomGenerator.nextInt(m_number);
-            }
-        }
-       // System.arraycopy(matrix,0,cmatrix,0, m_number);
-        cAmatrix =Amatrix.clone();
-        cBmatrix =Bmatrix.clone();
-
-        long jmStart= System.nanoTime();
-        int[][] jmresultArr = jmatrixMultiplication(Amatrix, Bmatrix);
-        long jmEnd= System.nanoTime();
-        long jmDiff=jmEnd-jmStart;
-        s_result+="multi matrix(java): "+jmDiff+" ns\n";
-
-
-        long cmStart= System.nanoTime();
-        int[][] cmresultArr = jmatrixMultiplication(Amatrix, Bmatrix);
-        long cmEnd= System.nanoTime();
-        long cmDiff=cmEnd-cmStart;
-        s_result+="multi matrix(c++): "+cmDiff+" ns\n";
-
-        TextView tv = (TextView) findViewById(R.id.my_tekst);
-        tv.setText(s_result);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -179,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
        for(int i = 0; i < mRRowLength; i++) {         // rows from m1
            for(int j = 0; j < mRColLength; j++) {     // columns from m2
                for(int k = 0; k < m1ColLength; k++) { // columns from m1
-                   mResult[i][j] += A[i][k] * B[k][j];
+                   mResult[i][j]+= A[i][k] * B[k][j];
                }
            }
        }
@@ -187,6 +114,19 @@ public class MainActivity extends AppCompatActivity {
        return mResult;
 
    }
+    public boolean compareTwoDimTab(int[][] A, int[][] B){
+        boolean flag =true;
+        for(int i = 0; (i<A.length)&&(flag==true); i++) {         // rows from m1
+            for(int j = 0; (j<A.length)&&(flag==true); j++) {     // columns from m2
+                    if(A[i][j]!=B[i][j]){
+                        flag=false;
+                    }
+                }
+            }
+
+        return flag;
+
+    }
     public boolean compareTab(int A[], int B[]){
         boolean flag =true;
         for(int i=0; (i<A.length)&&(flag==true); i++){
@@ -203,6 +143,18 @@ public class MainActivity extends AppCompatActivity {
         }
         return s_result;
     }
+
+    public String createString2dim(int[][] testarray ){
+        String s_result = "";
+        for (int i = 0; i < testarray.length; i++) {
+            for (int j = 0; j < testarray.length; j++){
+                s_result += testarray[i][j] + " ";
+            }
+            s_result +="\n";
+        }
+        return s_result;
+    }
+
     static {
         System.loadLibrary("NativeLib");
     }
@@ -267,5 +219,92 @@ public class MainActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+
+    public void printMatrix(View view) {
+        //matrix test
+        String s_result="";
+        int [][] Amatrix = new int[m_number][m_number];
+        int [][] Bmatrix = new int[m_number][m_number];
+        int [][] cAmatrix = new int[m_number][m_number];
+        int [][] cBmatrix = new int[m_number][m_number];
+        for (int i = 0; i < m_number; i++) {
+            for (int j = 0; j < m_number; j++) {
+                Random randomGenerator = new Random();
+                Amatrix[i][j] = randomGenerator.nextInt(gen_number);
+                Bmatrix[i][j] = randomGenerator.nextInt(gen_number);
+            }
+        }
+        cAmatrix =Amatrix.clone();
+        cBmatrix =Bmatrix.clone();
+        start= System.nanoTime();
+        int[][] jmresultArr = jmatrixMultiplication(Amatrix, Bmatrix);
+        end= System.nanoTime();
+        diff=end-start;
+        s_result+="multi matrix(java): "+diff+" ns\n";
+
+
+        start= System.nanoTime();
+        int[][] cmresultArr = matrixMultiplication(cAmatrix, cBmatrix);
+        end= System.nanoTime();
+        diff=end-start;
+        s_result+="multi matrix(c++ ): "+diff+" ns\n";
+        if(compareTwoDimTab(jmresultArr,cmresultArr )){
+            s_result+="compare matrix ok\n ";
+        }
+
+        TextView tv = (TextView) findViewById(R.id.my_tekst);
+        tv.setText(s_result);
+    }
+
+    public void printSort(View view) {
+
+        int[] testarray = new int[c_number];
+
+        for (int i = 0; i < c_number; i++) {
+            Random randomGenerator = new Random();
+            testarray[i] = randomGenerator.nextInt(c_number);
+        }
+        int[] ctestarray = new int[c_number];
+        int[] stltestarray = new int[c_number];
+        System.arraycopy(testarray,0,ctestarray,0,testarray.length);
+        System.arraycopy(testarray,0,stltestarray,0,testarray.length);
+        String s_result="";
+        //  s_result+="org tab:"+ createString(testarray)+"\n";
+        //Timestamp czas = ;
+        start= System.nanoTime();
+        int[] jresultArr = jbubbleSort(testarray);
+        end= System.nanoTime();
+        diff=end-start;
+        s_result+="Bubble sort(java): "+diff+" ns\n";
+       // s_result+="org tab:"+ createString(ctestarray)+"\n";
+
+       start = System.nanoTime();
+        int[] cresultArr = bubbleSort(ctestarray);
+        end= System.nanoTime();
+        diff=end-start;
+        s_result+="Bubble sort(c++): "+diff+" ns\n";
+
+        start = System.nanoTime();
+        int[] stlresultArr = stlsort(stltestarray);
+        end= System.nanoTime();
+        diff=end-start;
+        s_result+="stl sort(c++): "+diff+" ns\n";
+
+        s_result+="compare: ";
+        if(compareTab(jresultArr,cresultArr )){
+            s_result+="j+c ok ";
+        }
+        if(compareTab(jresultArr,stlresultArr )){
+            s_result+="j+stl ok ";
+        }
+        if(compareTab(cresultArr,stlresultArr )){
+            s_result+="c+stl ok ";
+        }
+        s_result+="\n";
+
+        TextView tv = (TextView) findViewById(R.id.my_tekst);
+        tv.setText(s_result);
     }
 }
