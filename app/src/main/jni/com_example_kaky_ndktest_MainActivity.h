@@ -123,6 +123,8 @@ JNIEXPORT jintArray JNICALL Java_com_example_kaky_ndktest_MainActivity_stlsort
 JNIEXPORT jobjectArray JNICALL Java_com_example_kaky_ndktest_MainActivity_matrixMultiplication
   (JNIEnv *, jobject, jobjectArray, jobjectArray);
 
+JNIEXPORT jintArray JNICALL Java_com_example_kaky_ndktest_MainActivity_jjCMul(JNIEnv *env, jclass clazz, jintArray A, jintArray B, jint n, jint m, jint k);
+
 #ifdef __cplusplus
 }
 #endif

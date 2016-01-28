@@ -15,15 +15,21 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.util.ArrayList;
 import java.util.Random;
+import java.text.DecimalFormat;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class MainActivity extends AppCompatActivity {
 
 
-    int c_number = 10;
-    int m_number=100;
+    int c_number = 100;
+    int mg=100;
     int gen_number=10;
-    long start, end, diff;
+    long start, end;
+    double diff;
+    MatrixMultiplication multimat = new MatrixMultiplication(mg, gen_number);
+    Sorting sort =new Sorting(c_number,gen_number );
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -70,90 +76,20 @@ public class MainActivity extends AppCompatActivity {
 
     //matrix
     public native int[][] matrixMultiplication(int[][] A, int[][] b);
+    public native long jjCMul(int[] A, int[] B, int n, int m, int k);
 
 
-    public int[] jbubbleSort(int[] array) {
-        int hold;
-        int flag=1;
-        int lenght = array.length;
-       // System.out.print(lenght);
-       for (int i = 0; (i < lenght) &&(flag==1); i++) {
-           flag=0;
-            for (int j = 0; j < (lenght-1); j++) {
-                if (array[j+1] > array[j]) {
-                    hold = array[j];
-                    array[j] = array[j + 1];
-                    array[j + 1] = hold;
-                    flag=1;
-                }
-            }
-        }
-        return array;
-    }
-   /* public  int[]jbubbleSort(int [] test);
-    public  int[] jquickSort(int [] test);
-    public  int[] jcountingSort(int [] test); */
+   /* public  int[] jcountingSort(int [] test); */
 
 
     //matrix
-   public  int[][] jmatrixMultiplication(int[][] A, int[][] B){
-       int m1ColLength = A[0].length; // m1 columns length
-       int m2RowLength = B.length;    // m2 rows length
-       if(m1ColLength != m2RowLength) return null;
-       int mRRowLength = A.length;    // m result rows length
-       int mRColLength = B[0].length; // m result columns length
-       int[][] mResult = new int[mRRowLength][mRColLength];
-       for(int i = 0; i < mRRowLength; i++) {         // rows from m1
-           for(int j = 0; j < mRColLength; j++) {     // columns from m2
-               for(int k = 0; k < m1ColLength; k++) { // columns from m1
-                   mResult[i][j]+= A[i][k] * B[k][j];
-               }
-           }
-       }
 
-       return mResult;
 
-   }
-    public boolean compareTwoDimTab(int[][] A, int[][] B){
-        boolean flag =true;
-        for(int i = 0; (i<A.length)&&(flag==true); i++) {         // rows from m1
-            for(int j = 0; (j<A.length)&&(flag==true); j++) {     // columns from m2
-                    if(A[i][j]!=B[i][j]){
-                        flag=false;
-                    }
-                }
-            }
 
-        return flag;
 
-    }
-    public boolean compareTab(int A[], int B[]){
-        boolean flag =true;
-        for(int i=0; (i<A.length)&&(flag==true); i++){
-            if(A[i]!=B[i]){
-                flag=false;
-            }
-        }
-        return flag;
-    }
-    public String createString(int[] testarray ){
-        String s_result = "";
-        for (int i = 0; i < testarray.length; i++) {
-            s_result += testarray[i] + " ";
-        }
-        return s_result;
-    }
 
-    public String createString2dim(int[][] testarray ){
-        String s_result = "";
-        for (int i = 0; i < testarray.length; i++) {
-            for (int j = 0; j < testarray.length; j++){
-                s_result += testarray[i][j] + " ";
-            }
-            s_result +="\n";
-        }
-        return s_result;
-    }
+
+
 
     static {
         System.loadLibrary("NativeLib");
@@ -224,35 +160,75 @@ public class MainActivity extends AppCompatActivity {
 
     public void printMatrix(View view) {
         //matrix test
-        String s_result="";
-        int [][] Amatrix = new int[m_number][m_number];
-        int [][] Bmatrix = new int[m_number][m_number];
-        int [][] cAmatrix = new int[m_number][m_number];
-        int [][] cBmatrix = new int[m_number][m_number];
-        for (int i = 0; i < m_number; i++) {
-            for (int j = 0; j < m_number; j++) {
-                Random randomGenerator = new Random();
-                Amatrix[i][j] = randomGenerator.nextInt(gen_number);
-                Bmatrix[i][j] = randomGenerator.nextInt(gen_number);
-            }
-        }
+        String s_result="Matrix "+multimat.m_number+" x "+multimat.m_number+"\n";
+        int [][] Amatrix = new int[multimat.m_number][multimat.m_number];
+        int [][] Bmatrix = new int[multimat.m_number][multimat.m_number];
+        int [][] cAmatrix = new int[multimat.m_number][multimat.m_number];
+        int [][] cBmatrix = new int[multimat.m_number][multimat.m_number];
+        multimat.genMatrix(Amatrix, multimat.m_number, multimat.m_number);
+        multimat.genMatrix(Bmatrix, multimat.m_number, multimat.m_number);
+
         cAmatrix =Amatrix.clone();
         cBmatrix =Bmatrix.clone();
         start= System.nanoTime();
-        int[][] jmresultArr = jmatrixMultiplication(Amatrix, Bmatrix);
+        //int[][] jmresultArr =
+        multimat.jmatrixMultiplication(Amatrix, Bmatrix);
         end= System.nanoTime();
-        diff=end-start;
-        s_result+="multi matrix(java): "+diff+" ns\n";
+        diff=(end-start)/1000000000.0;
+        s_result+="multi matrix(java):"+new DecimalFormat("##.#########").format(diff)+" s\n";
+
+        Integer [][] AmatrixInteger = new Integer[multimat.m_number][multimat.m_number];
+        Integer [][] BmatrixInteger = new Integer[multimat.m_number][multimat.m_number];
+        multimat.genMatrixInteger(AmatrixInteger, multimat.m_number, multimat.m_number);
+        multimat.genMatrixInteger(BmatrixInteger, multimat.m_number, multimat.m_number);
+
+        start= System.nanoTime();
+        //int[][] jmresultArr =
+        multimat.jmatrixMultiplicationInteger(AmatrixInteger,BmatrixInteger );
+        end= System.nanoTime();
+        diff=(end-start)/1000000000.0;
+        s_result+="multimatInteger(j):"+new DecimalFormat("##.#########").format(diff)+" s\n";
+
+
+        ArrayList<Integer> tabA = new ArrayList<>();
+        ArrayList<Integer> tabB = new ArrayList<>();
+        for(int i=0; i<(multimat.m_number*multimat.m_number); ++i ){
+            Random randomGenerator = new Random();
+            tabA.add(randomGenerator.nextInt(gen_number));
+            tabB.add(randomGenerator.nextInt(gen_number));
+
+        }
+        start= System.nanoTime();
+        MatrixMultiplication.JMul(tabA, tabB,multimat.m_number, multimat.m_number, multimat.m_number );
+        end= System.nanoTime();
+        diff=(end-start)/1000000000.0;
+        s_result+="jj:multi matrix(jav):"+new DecimalFormat("##.#########").format(diff)+" s\n";
+
+        int[] jjctAtab = new int[multimat.m_number*multimat.m_number];
+        int[] jjctBtab = new int[multimat.m_number*multimat.m_number];
+        sort.generTab(jjctAtab, multimat.m_number*multimat.m_number);
+        sort.generTab(jjctBtab, multimat.m_number*multimat.m_number);
+
+        start= System.nanoTime();
+        jjCMul(jjctAtab, jjctBtab, multimat.m_number,multimat.m_number, multimat.m_number);
+        end= System.nanoTime();
+        diff=(end-start)/1000000000.0;
+        s_result+="jj:multi matrix(c++):"+new DecimalFormat("##.#########").format(diff)+" s\n";
 
 
         start= System.nanoTime();
         int[][] cmresultArr = matrixMultiplication(cAmatrix, cBmatrix);
         end= System.nanoTime();
-        diff=end-start;
-        s_result+="multi matrix(c++ ): "+diff+" ns\n";
-        if(compareTwoDimTab(jmresultArr,cmresultArr )){
+        diff=(end-start)/1000000000.0;
+        s_result+="multi matrix(c++ ):"+new DecimalFormat("##.#########").format(diff)+" s\n";
+
+        //
+
+
+
+       /* if(multimat.compareTwoDimTab(jmresultArr, cmresultArr)){
             s_result+="compare matrix ok\n ";
-        }
+        }*/
 
         TextView tv = (TextView) findViewById(R.id.my_tekst);
         tv.setText(s_result);
@@ -268,38 +244,46 @@ public class MainActivity extends AppCompatActivity {
         }
         int[] ctestarray = new int[c_number];
         int[] stltestarray = new int[c_number];
-        System.arraycopy(testarray,0,ctestarray,0,testarray.length);
+        int[] jqtestarray = new int[c_number];
+        System.arraycopy(testarray, 0, ctestarray, 0, testarray.length);
         System.arraycopy(testarray,0,stltestarray,0,testarray.length);
-        String s_result="";
+        System.arraycopy(testarray,0,jqtestarray,0,testarray.length);
+        String s_result="Sorting "+c_number+"\n";;
         //  s_result+="org tab:"+ createString(testarray)+"\n";
         //Timestamp czas = ;
         start= System.nanoTime();
-        int[] jresultArr = jbubbleSort(testarray);
+      //  int[] jresultArr = jbubbleSort(testarray);
         end= System.nanoTime();
-        diff=end-start;
-        s_result+="Bubble sort(java): "+diff+" ns\n";
+        diff=(end-start)/1000000000.0;
+        s_result+="Bubble sort(java): "+new DecimalFormat("##.#########").format(diff)+" s\n";
        // s_result+="org tab:"+ createString(ctestarray)+"\n";
 
-       start = System.nanoTime();
+        start = System.nanoTime();
         int[] cresultArr = bubbleSort(ctestarray);
         end= System.nanoTime();
-        diff=end-start;
-        s_result+="Bubble sort(c++): "+diff+" ns\n";
+        diff=(end-start)/1000000000.0;
+        s_result+="Bubble sort(c++): "+new DecimalFormat("##.#########").format(diff)+" s\n";
+
+        start= System.nanoTime();
+      //  jquickSort(jqtestarray, 0,c_number);
+        end= System.nanoTime();
+        diff=(end-start)/1000000000.0;
+        s_result+="guick sort(java): "+new DecimalFormat("##.#########").format(diff)+" s\n";
 
         start = System.nanoTime();
         int[] stlresultArr = stlsort(stltestarray);
         end= System.nanoTime();
-        diff=end-start;
-        s_result+="stl sort(c++): "+diff+" ns\n";
+        diff=(end-start)/1000000000.0;
+        s_result+="stl sort(c++): "+new DecimalFormat("##.#########").format(diff)+" s\n";
 
         s_result+="compare: ";
-        if(compareTab(jresultArr,cresultArr )){
+      /*  if(compareTab(jresultArr,cresultArr )){
             s_result+="j+c ok ";
         }
         if(compareTab(jresultArr,stlresultArr )){
             s_result+="j+stl ok ";
-        }
-        if(compareTab(cresultArr,stlresultArr )){
+        }*/
+        if(sort.compareTab(cresultArr, stlresultArr)){
             s_result+="c+stl ok ";
         }
         s_result+="\n";

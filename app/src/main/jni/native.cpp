@@ -103,10 +103,10 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_kaky_ndktest_MainActivity_matrix
             localArray[j]=0;
             for(int k=0; k<size; ++k){
 
-                int sum=0;
-                sum= Aelement[k] * (Bptr[k][j]);
+                int multi=0;
+                multi= Aelement[k] * (Bptr[k][j]);
               //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "multiply A %d B %d result %d", Aelement[k], Bptr[k][j], sum);
-                localArray[j]=localArray[j] + sum;
+                localArray[j]=localArray[j] + multi;
               //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "The value of n is %d", localArray[j]);
             }
           //  __android_log_print(ANDROID_LOG_VERBOSE, "MyApp", "End %d", localArray[j]);
@@ -127,4 +127,41 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_kaky_ndktest_MainActivity_matrix
     delete [] Bptr;
 
     return result;
+}
+
+JNIEXPORT jintArray JNICALL Java_com_example_kaky_ndktest_MainActivity_jjCMul
+(JNIEnv *env, jclass clazz, jintArray A, jintArray B, jint n, jint m, jint k) {
+    jint *C = new jint[n*k];
+    jint *Aarray, *Barray;
+    jboolean isCopy;
+    jint i = 0, j = 0, x = 0;
+
+  //  std::vector<jint> v;
+    jintArray newArray = env->NewIntArray(n*k);
+
+    Aarray = (env)->GetIntArrayElements(A, &isCopy);
+    Barray = (env)->GetIntArrayElements(B, &isCopy);
+
+  /*  if(Aarray == 0 || Barray == 0) {
+        return -1;
+    }*/
+
+    for(i = 0; i < n; i++) {
+        for(j = 0; j < k; j++) {
+            jint tmp = 0;
+            for(x = 0; x < m; x++) {
+                tmp += Aarray[i * m + x] * Barray[x * k + j];
+            }
+        C[i * k + j] = tmp;
+        }
+    }
+
+    (env)->ReleaseIntArrayElements(A, Aarray, JNI_ABORT);
+    (env)->ReleaseIntArrayElements(B, Barray, JNI_ABORT);
+
+    env->SetIntArrayRegion(newArray, 0, n*k,C );
+    env->ReleaseIntArrayElements(newArray, C, 0);
+
+   // delete C;
+    return newArray;
 }
