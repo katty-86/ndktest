@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.appindexing.Action;
@@ -77,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     //matrix
     public native int[][] matrixMultiplication(int[][] A, int[][] b);
     public native long jjCMul(int[] A, int[] B, int n, int m, int k);
+
+    public native String CPPDESencryptDecrypt();
 
 
    /* public  int[] jcountingSort(int [] test); */
@@ -290,5 +293,19 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tv = (TextView) findViewById(R.id.my_tekst);
         tv.setText(s_result);
+    }
+
+    public void testingDES(View view) {
+        DES des =new DES();
+        String encryptText=des.genString(2147483); //et1.getText().toString();
+        start = System.nanoTime();
+        String s_result =des.DESencryptDecrypt(encryptText);
+        end= System.nanoTime();
+        diff=(end-start)/1000000000.0;
+        s_result="DES(java): "+new DecimalFormat("##.#########").format(diff)+" s\n";
+        TextView tv2 = (TextView) findViewById(R.id.my_tekst);
+        tv2.setText(s_result);
+
+
     }
 }
